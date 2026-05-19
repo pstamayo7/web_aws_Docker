@@ -1,0 +1,44 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-aws
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: mi_base
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - red-web
+
+  web:
+    build: ./web
+    container_name: web-aws
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - mysql
+    networks:
+      - red-web
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-aws
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    depends_on:
+      - mysql
+    networks:
+      - red-web
+
+volumes:
+  mysql_data:
+
+networks:
+  red-web:
